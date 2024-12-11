@@ -50,17 +50,17 @@ namespace HelloWorld
 		{
 			if (GUILayout.Button(m_NetworkManager.IsServer ? "Move" : "Request Position Change"))
 			{
-				if (m_NetworkManager.IsServer && !m_NetworkManager.IsClient)
-				{
-					//foreach (ulong uid in m_NetworkManager.ConnectedClientsIds)
-						//m_NetworkManager.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().Move();
-				}
-				else
-				{
-					//var playerObject = m_NetworkManager.SpawnManager.GetLocalPlayerObject();
-					//var player = playerObject.GetComponent<HelloWorldPlayer>();
-					//player.Move();
-				}
+				//if (m_NetworkManager.IsServer && !m_NetworkManager.IsClient)
+				//{
+				//	foreach (ulong uid in m_NetworkManager.ConnectedClientsIds)
+				//	m_NetworkManager.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().Move();
+				//}
+				//else
+				//{
+					var playerObject = m_NetworkManager.SpawnManager.GetLocalPlayerObject();
+					var player = playerObject.GetComponent<HelloWorldPlayer>();
+					player.Move();
+				//}
 			}
 		}
 	}
