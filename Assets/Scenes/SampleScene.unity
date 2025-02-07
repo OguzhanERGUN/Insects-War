@@ -365,6 +365,7 @@ GameObject:
   - component: {fileID: 1089443369}
   - component: {fileID: 1089443368}
   - component: {fileID: 1089443367}
+  - component: {fileID: 1089443371}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -454,11 +455,23 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 6, y: 1, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1089443371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1089443366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3de382d6ff92e3343ab3f4b078f2410d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1286326328
 GameObject:
   m_ObjectHideFlags: 0
@@ -536,7 +549,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1286326330}
-    PlayerPrefab: {fileID: 8037588357281425149, guid: a1c1f3c47c0b5094ebf4eb26cebbea30, type: 3}
+    PlayerPrefab: {fileID: 5853805329778372386, guid: d49603e2173549347808ddd7d1dd4073, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 0a08318d40657cc4991d7c02227f9d4a, type: 2}
