@@ -1,64 +1,57 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-	public float moveSpeed = 5f; 
-	public float headRotationSpeed = 40f; 
-	[SerializeField] private Transform BodyTransform;
-	[SerializeField] private Transform HeadTransform;
-	[SerializeField] private Transform GunTransform;
+	public float moveSpeed = 5f;
+	public float bodyRotationSpeed = 5f;
 
-	private void Start()
-	{
-	}
+	[SerializeField] private Transform BodyTransform;
+
+	private NetworkVariable<Quaternion> bodyRotation = new NetworkVariable<Quaternion>(
+		Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
 	private void Update()
 	{
 		if (!IsOwner) return;
 		GetMovementInput();
-		GetRotationInput();
 	}
 
-	private void GetRotationInput()
+	private void LateUpdate()
 	{
-		if (Input.GetKey(KeyCode.E))
+		// Tüm istemciler için akýcý dönüþ
+		if (IsServer || IsClient)
 		{
-			RotateItemServerRpc();
+			BodyTransform.rotation = Quaternion.Slerp(BodyTransform.rotation, bodyRotation.Value, bodyRotationSpeed * Time.deltaTime);
 		}
 	}
 
 	private void GetMovementInput()
 	{
+		float moveX = Input.GetAxis("Horizontal");
+		float moveZ = Input.GetAxis("Vertical");
 
-		float moveX = Input.GetAxis("Horizontal"); // A (-1) ve D (+1)
-		float moveZ = Input.GetAxis("Vertical");   // W (+1) ve S (-1)
-
-		Vector3 move = new Vector3(moveX, 0, moveZ) * moveSpeed * Time.deltaTime;
-		MoveServerRpc(move);
-		Debug.Log(NetworkBehaviourId + " " + move);
+		Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
+		if (moveDirection != Vector3.zero)
+		{
+			MoveServerRpc(moveDirection);
+			RotateBodyServerRpc(moveDirection);
+		}
 	}
-
 
 	[ServerRpc]
-	private void MoveServerRpc(Vector3 move)
+	private void MoveServerRpc(Vector3 movedirection)
 	{
-		transform.position = transform.position + move;
+		transform.position += movedirection * moveSpeed * Time.deltaTime;
 	}
-
 
 	[ServerRpc]
-	private void RotateItemServerRpc()
+	private void RotateBodyServerRpc(Vector3 movedirection)
 	{
-		RotateHeadClientRpc();
+		Quaternion targetRotation = Quaternion.LookRotation(movedirection, Vector3.up);
+		bodyRotation.Value = targetRotation; // Dönüþü NetworkVariable ile ayarla
 	}
 
-	[ClientRpc]
-	private void RotateHeadClientRpc()
-	{
-		HeadTransform.Rotate(Vector3.up * headRotationSpeed * Time.deltaTime);
-	}
+
 }
