@@ -16,6 +16,14 @@ public class MouseandAimController : NetworkBehaviour
 	public float maxGunAngle = 30f;   // Namlu yukarý limit
 
 	private float xRotation = 0f;
+	private Quaternion lastGunRotation;
+
+	private NetworkVariable<Vector3> camPosition = new NetworkVariable<Vector3>(
+	Vector3.zero, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+	private NetworkVariable<Quaternion> gunRotation = new NetworkVariable<Quaternion>(
+	Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+
 
 	private void Start()
 	{
@@ -43,10 +51,34 @@ public class MouseandAimController : NetworkBehaviour
 		// Gun yukarý-aþaðý hareketi (Mouse Y)
 		xRotation -= mouseY;
 		xRotation = Mathf.Clamp(xRotation, minGunAngle, maxGunAngle);
-		gunTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-		// Kamera güncelle (her zaman silahý takip eder)
 		cameraTransform.position = gunTransform.position - gunTransform.forward * 4f + Vector3.up * 1.5f;
 		cameraTransform.rotation = Quaternion.LookRotation(gunTransform.forward);
+
+		Quaternion newGunRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+
+		if (Quaternion.Angle(lastGunRotation, newGunRotation) > 0.5f)
+		{
+			lastGunRotation = newGunRotation;
+			UpdateAimValuesServerRpc(newGunRotation);
+		}
+	}
+
+	private void FixedUpdate()
+	{
+		if (IsClient || IsServer)
+		{
+			if (gunTransform.localRotation != gunRotation.Value)
+			{
+				gunTransform.localRotation = gunRotation.Value;
+			}
+		}
+	}
+
+	[ServerRpc]
+	private void UpdateAimValuesServerRpc(Quaternion gunrotation)
+	{
+		gunRotation.Value = gunrotation;
 	}
 }
