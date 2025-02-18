@@ -7,23 +7,24 @@ public class MouseandAimController : NetworkBehaviour
 	public float mouseSensitivity = 100f;
 
 	[Header("References")]
-	public Transform turretTransform; // Kafa kýsmý
-	public Transform gunTransform;    // Silah kýsmý
-	public Transform cameraTransform; // Kamera
+	public Transform turretTransform;
+	public Transform gunTransform;
+	public Transform cameraTransform;
 
 	[Header("Rotation Limits")]
-	public float minGunAngle = -10f;  // Namlu aþaðý limit
-	public float maxGunAngle = 30f;   // Namlu yukarý limit
+	public float minGunAngle = -10f;
+	public float maxGunAngle = 30f;
 
 	private float xRotation = 0f;
 	private Quaternion lastGunRotation;
+	private Quaternion lastTurretRotation;
 
-	private NetworkVariable<Vector3> camPosition = new NetworkVariable<Vector3>(
-	Vector3.zero, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+	// NetworkVariables for turret and gun rotations
 	private NetworkVariable<Quaternion> gunRotation = new NetworkVariable<Quaternion>(
-	Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+		Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-
+	private NetworkVariable<Quaternion> turretRotation = new NetworkVariable<Quaternion>(
+		Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
 	private void Start()
 	{
@@ -41,44 +42,55 @@ public class MouseandAimController : NetworkBehaviour
 	{
 		if (!IsOwner) return;
 
-		// Mouse girdilerini al
 		float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
 		float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-		// Turret sað-sol hareketi (Mouse X)
+		// Turret rotation (Y-axis)
 		turretTransform.Rotate(Vector3.up * mouseX);
+		Quaternion newTurretRotation = turretTransform.rotation;
 
-		// Gun yukarý-aþaðý hareketi (Mouse Y)
-		xRotation -= mouseY;
-		xRotation = Mathf.Clamp(xRotation, minGunAngle, maxGunAngle);
+		// Update turret rotation only if it changed significantly
+		if (Quaternion.Angle(lastTurretRotation, newTurretRotation) > 0.5f)
+		{
+			lastTurretRotation = newTurretRotation;
+			UpdateTurretRotationServerRpc(newTurretRotation);
+		}
 
-		cameraTransform.position = gunTransform.position - gunTransform.forward * 4f + Vector3.up * 1.5f;
-		cameraTransform.rotation = Quaternion.LookRotation(gunTransform.forward);
-
+		// Gun rotation (X-axis)
+		xRotation = Mathf.Clamp(xRotation - mouseY, minGunAngle, maxGunAngle);
 		Quaternion newGunRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
 
 		if (Quaternion.Angle(lastGunRotation, newGunRotation) > 0.5f)
 		{
 			lastGunRotation = newGunRotation;
-			UpdateAimValuesServerRpc(newGunRotation);
+			UpdateGunRotationServerRpc(newGunRotation);
 		}
+
+		// Update camera position based on gun
+		cameraTransform.position = gunTransform.position - gunTransform.forward * 4f + Vector3.up * 1.5f;
+		cameraTransform.rotation = Quaternion.LookRotation(gunTransform.forward);
 	}
 
 	private void FixedUpdate()
 	{
+		// Synchronize turret and gun rotations
 		if (IsClient || IsServer)
 		{
-			if (gunTransform.localRotation != gunRotation.Value)
-			{
-				gunTransform.localRotation = gunRotation.Value;
-			}
+			turretTransform.rotation = Quaternion.Slerp(turretTransform.rotation, turretRotation.Value, Time.deltaTime * 5f);
+			gunTransform.localRotation = Quaternion.Slerp(gunTransform.localRotation, gunRotation.Value, Time.deltaTime * 20f);
+
 		}
 	}
 
 	[ServerRpc]
-	private void UpdateAimValuesServerRpc(Quaternion gunrotation)
+	private void UpdateTurretRotationServerRpc(Quaternion rotation)
 	{
-		gunRotation.Value = gunrotation;
+		turretRotation.Value = rotation;
+	}
+
+	[ServerRpc]
+	private void UpdateGunRotationServerRpc(Quaternion rotation)
+	{
+		gunRotation.Value = rotation;
 	}
 }
