@@ -35,15 +35,9 @@ namespace HelloWorld
 
 		void Update()
 		{
-			//transform.position = Position.Value;
-			LogRpc();
 		}
 
 
-		[Rpc(SendTo.Server)]
-		private void LogRpc()
-		{
-			Debug.Log(" " + NetworkObjectId);
-		}
+
 	}
 }
