@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ public class GunInput : NetworkBehaviour
 
 	[Header("Referanslar")]
 	[SerializeField] private Camera playerCamera; // Oyuncu kamerasý
+	[SerializeField] private GameObject missilePrefab;
+
+
+	[SerializeField] private float missileFlightTime = 1.5f;
+	[SerializeField] private float missileArcHeight = 5f;
 
 	private void Update()
 	{
@@ -22,6 +28,9 @@ public class GunInput : NetworkBehaviour
 		{
 			Fire();
 		}
+
+		if (Input.GetMouseButtonDown(1)) // Sað týk ile füze at
+			LaunchMissile();
 	}
 
 	private void Fire()
@@ -34,6 +43,15 @@ public class GunInput : NetworkBehaviour
 				Debug.Log($"Vuruldu: {targetPlayer.name}");
 				targetPlayer.TakeDamage(damage);
 			}
+		}
+	}
+	private void LaunchMissile()
+	{
+		Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
+		if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+		{
+			GameObject missileObj = Instantiate(missilePrefab, transform.position, Quaternion.identity);
+			missileObj.GetComponent<Missile>().Launch(hit.point, missileFlightTime, missileArcHeight);
 		}
 	}
 }
