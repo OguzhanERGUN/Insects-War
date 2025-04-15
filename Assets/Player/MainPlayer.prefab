@@ -99,7 +99,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -605,7 +605,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -757,6 +757,7 @@ GameObject:
   - component: {fileID: 1412527677082053733}
   - component: {fileID: 3399158305190900664}
   - component: {fileID: 3270318167056688093}
+  - component: {fileID: 4162673149353057060}
   m_Layer: 0
   m_Name: MainPlayer
   m_TagString: Untagged
@@ -795,7 +796,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 160534205
+  GlobalObjectIdHash: 81423362
   InScenePlacedSourceGlobalObjectIdHash: 160534205
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -877,6 +878,8 @@ MonoBehaviour:
   bodyRotationSpeed: 40
   BodyTransform: {fileID: 7557491491964729799}
   CameraTransform: {fileID: 7358809243338455580}
+  jumpForce: 5
+  runMultiplier: 1.5
 --- !u!114 &7842947475535370958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -956,6 +959,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCanvas: {fileID: 1250188278585541251}
+--- !u!54 &4162673149353057060
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5853805329778372386}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &7648370614049560981
 GameObject:
   m_ObjectHideFlags: 0

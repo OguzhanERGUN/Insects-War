@@ -13,10 +13,30 @@ public class PlayerController : NetworkBehaviour
 	private NetworkVariable<Quaternion> bodyRotation = new NetworkVariable<Quaternion>(
 		Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+	public float jumpForce = 5f;
+	public float runMultiplier = 2f;
+
+	private bool isGrounded;
+	private Rigidbody rb;
+
+
+	private void Start()
+	{
+		if (IsOwner)
+		{
+			rb = GetComponent<Rigidbody>();
+		}
+	}
 	private void Update()
 	{
 		if (!IsOwner) return;
+
 		GetMovementInput();
+
+		if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+		{
+			JumpServerRpc();
+		}
 	}
 
 	private void LateUpdate()
@@ -30,7 +50,7 @@ public class PlayerController : NetworkBehaviour
 
 	private void GetMovementInput()
 	{
-		// Kameranýn yönünü al ve yatay düzlemde projeksiyon yap
+		// Kamera yönü hesaplamalarý
 		Vector3 cameraForward = CameraTransform.forward;
 		cameraForward.y = 0;
 		cameraForward.Normalize();
@@ -39,7 +59,7 @@ public class PlayerController : NetworkBehaviour
 		cameraRight.y = 0;
 		cameraRight.Normalize();
 
-		// Hareket yönünü kamera eksenine göre hesapla
+		// Hareket yönü
 		float moveX = Input.GetAxis("Horizontal");
 		float moveZ = Input.GetAxis("Vertical");
 
@@ -48,15 +68,19 @@ public class PlayerController : NetworkBehaviour
 
 		if (moveDirection != Vector3.zero)
 		{
-			MoveServerRpc(moveDirection);
-			RotateBodyServerRpc(moveDirection);
+			if (CanMoveForward(transform.forward))
+			{
+				float speedMultiplier = Input.GetKey(KeyCode.LeftShift) ? runMultiplier : 1f;
+				MoveServerRpc(moveDirection, speedMultiplier);
+				RotateBodyServerRpc(moveDirection);
+			}
 		}
 	}
 
 	[ServerRpc]
-	private void MoveServerRpc(Vector3 moveDirection)
+	private void MoveServerRpc(Vector3 moveDirection, float speedMultiplier)
 	{
-		transform.position += moveDirection * moveSpeed * Time.deltaTime;
+		transform.position += moveDirection * moveSpeed * speedMultiplier * Time.deltaTime;
 	}
 
 	[ServerRpc]
@@ -64,5 +88,48 @@ public class PlayerController : NetworkBehaviour
 	{
 		Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
 		bodyRotation.Value = targetRotation;
+	}
+
+	[ServerRpc]
+	private void JumpServerRpc()
+	{
+		if (rb != null && isGrounded)
+		{
+			rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+			isGrounded = false;
+		}
+	}
+
+
+	private void OnCollisionStay(Collision collision)
+	{
+		if (IsOwner && collision.gameObject.CompareTag("Ground"))
+		{
+			isGrounded = true;
+		}
+	}
+
+	private void OnCollisionExit(Collision collision)
+	{
+		if (IsOwner && collision.gameObject.CompareTag("Ground"))
+		{
+			isGrounded = false;
+		}
+	}
+
+	private bool CanMoveForward(Vector3 direction)
+	{
+		Ray ray = new Ray(transform.position + Vector3.up * 0.5f, direction);
+		RaycastHit hit;
+		float rayDistance = 1.5f; // Engel kontrol mesafesi
+
+		if (Physics.Raycast(ray, out hit, rayDistance))
+		{
+			// Ýsteðe baðlý olarak engel tag kontrolü
+			// if (hit.collider.CompareTag("Obstacle")) return false;
+			return false; // Engel var, hareket etme
+		}
+
+		return true; // Engel yok, hareket serbest
 	}
 }
