@@ -796,7 +796,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 81423362
+  GlobalObjectIdHash: 160534205
   InScenePlacedSourceGlobalObjectIdHash: 160534205
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -878,6 +878,7 @@ MonoBehaviour:
   bodyRotationSpeed: 40
   BodyTransform: {fileID: 7557491491964729799}
   CameraTransform: {fileID: 7358809243338455580}
+  HeadTransform: {fileID: 3853604347696459500}
   jumpForce: 5
   runMultiplier: 1.5
 --- !u!114 &7842947475535370958
@@ -946,6 +947,7 @@ MonoBehaviour:
   missilePrefab: {fileID: 1769086012301756177, guid: e9f4526ed1b085f428894b905a45b40b, type: 3}
   missileFlightTime: 1.5
   missileArcHeight: 5
+  missileSpeed: 20
 --- !u!114 &3270318167056688093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -984,7 +986,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!1 &7648370614049560981
 GameObject:

@@ -45,13 +45,16 @@ public class GunInput : NetworkBehaviour
 			}
 		}
 	}
+	[SerializeField] private float missileSpeed = 20f; // Saniyede kaç birim gitsin?
+
 	private void LaunchMissile()
 	{
 		Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 		if (Physics.Raycast(ray, out RaycastHit hit, 100f))
 		{
 			GameObject missileObj = Instantiate(missilePrefab, transform.position, Quaternion.identity);
-			missileObj.GetComponent<Missile>().Launch(hit.point, missileFlightTime, missileArcHeight);
+			missileObj.GetComponent<Missile>().Launch(hit.point, missileSpeed, missileArcHeight);
 		}
 	}
+
 }

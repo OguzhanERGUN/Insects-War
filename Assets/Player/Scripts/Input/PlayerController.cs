@@ -9,6 +9,7 @@ public class PlayerController : NetworkBehaviour
 
 	[SerializeField] private Transform BodyTransform;
 	[SerializeField] private Transform CameraTransform;
+	[SerializeField] private Transform HeadTransform;
 
 	private NetworkVariable<Quaternion> bodyRotation = new NetworkVariable<Quaternion>(
 		Quaternion.identity, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -119,7 +120,7 @@ public class PlayerController : NetworkBehaviour
 
 	private bool CanMoveForward(Vector3 direction)
 	{
-		Ray ray = new Ray(transform.position + Vector3.up * 0.5f, direction);
+		Ray ray = new Ray(HeadTransform.position + Vector3.up * 0.5f, direction);
 		RaycastHit hit;
 		float rayDistance = 1.5f; // Engel kontrol mesafesi
 

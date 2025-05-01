@@ -7,18 +7,24 @@ public class Missile : MonoBehaviour
 	private float height;
 	private float duration;
 	private float timeElapsed;
+	[SerializeField] private GameObject explosionEffectPrefab;
+
 
 	private Vector3 previousPosition;
 
-	public void Launch(Vector3 target, float flightTime = 1.5f, float arcHeight = 5f)
+	public void Launch(Vector3 target, float speed = 20f, float arcHeight = 5f)
 	{
 		startPoint = transform.position;
 		endPoint = target;
-		duration = flightTime;
-		height = arcHeight;
 		timeElapsed = 0f;
 		previousPosition = startPoint;
+
+		// Hedefe olan uzaklýða göre süreyi hesapla (sabit hýzla)
+		float distance = Vector3.Distance(startPoint, endPoint);
+		height = Mathf.Clamp(distance * 0.25f, 1f, 10f); // mesafe * katsayý, min/max ile sýnýrlama
+		duration = distance / speed; // süre = mesafe / hýz
 	}
+
 
 	private void Update()
 	{
@@ -44,7 +50,9 @@ public class Missile : MonoBehaviour
 
 		if (t >= 1f)
 		{
-			// Hedefe ulaþýldýysa efekt vs.
+			Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+			Debug.Log("Füze hedefe ulaþtý!");
+			Destroy(gameObject); // Füze nesnesini yok et
 			Debug.Log("Füze hedefe ulaþtý!");
 		}
 	}
