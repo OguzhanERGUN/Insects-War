@@ -38,7 +38,7 @@ public class GunInput : NetworkBehaviour
 		Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Ekranýn ortasýndan ray at
 		if (Physics.Raycast(ray, out RaycastHit hit, fireRange, hitLayers))
 		{
-			if (hit.transform.parent.parent.TryGetComponent(out HealthController targetPlayer))
+			if (hit.transform.root.TryGetComponent(out HealthController targetPlayer))
 			{
 				Debug.Log($"Vuruldu: {targetPlayer.name}");
 				targetPlayer.TakeDamage(damage);
